@@ -5,7 +5,7 @@ def parcer(gameId:int = 730,
            min_price:int = 0,
            max_price:int = 10000000,
            sort:str = 'Popularity',
-           limit: int = 1000000):
+           limit: int = 1000000) -> dict:
     data = {}
 
     headers = {
@@ -16,20 +16,23 @@ def parcer(gameId:int = 730,
     }
 
     response = requests.get(f'https://tradeit.gg/api/v2/inventory/data?gameId={str(gameId)}&limit={str(limit)}&sortType={sort}&searchValue=&minPrice={str(min_price)}&maxPrice={str(max_price)}&minFloat=0&maxFloat=1&showTradeLock=true&colors=&showUserListing=true&fresh=false', headers=headers).json()
+
     with open('data.json', 'w') as f:
         for i in response['items']:
             try:
                 id = i['id']
-                _ = {'Name': i['name'], 'ID': id,
+                _ = {i['id']:{'Name': i['name'], 'ID': id,
                         'Condition' : i['steamTags'][5],
                         'Type': i['steamTags'][0],
                         'Price': i['price']/100,
-                        'Count': response['counts'][str(id)]}
+                        'Count': response['counts'][str(id)]}}
                 data.update(_)
-                json.dump(data, f)
+                
             except KeyError:
                 pass
-        
+        json.dump(data, f)
+
+    return data
 
 
 parcer()
